@@ -16,5 +16,5 @@ if __name__=="__main__":
         # p = PPO(4, 3)
         # p.run(env, 3, 3)
         env.reset()
-        algo = Adversary(env, 2, 3)
+        algo = Adversary(env, 10, 3)
         print(algo.adversarial_epoch(env))

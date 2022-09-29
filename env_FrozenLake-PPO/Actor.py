@@ -20,7 +20,7 @@ class Actor(tf.keras.Model):
         
 
     def call(self, input):
-
+        #print(input.shape)
         x = self.conv_one(input)
         x = self.batch_one(x)
         x = self.activation_one(x)

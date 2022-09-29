@@ -4,6 +4,7 @@ import Critic
 from PPO_Agent import PPO_Agent
 from Buffer import Buffer
 import FrozenLake
+import tensorflow as tf
 class Adversary(object):
 
     def __init__(self, env, training_epochs, epoch_length):
@@ -26,12 +27,12 @@ class Adversary(object):
         print('Creating Map.')
         for i in range(1, env.x-1):
             for j in range(1, env.y-1):
-                one_hot_map = env.map.copy()
+                one_hot_map = env.draw_for_state()
                 # set coordinate temporary to 'P' so adversary knows his placement
                 one_hot_map[i,j] = b'P'
                 one_hot_map = env.one_hot(one_hot_map)
-                action, probs= self.adversary.get_action(one_hot_map)
-                value = self.adversary.critic(np.array([one_hot_map]))
+                action, probs = self.adversary.get_action(one_hot_map)
+                value = self.adversary.critic(np.array([one_hot_map]), training = False)
                 # change coordinate according to chosen action
                 env.map[i,j] = self.choose_action(action)
                 state = env.one_hot(env.map.copy())
@@ -44,19 +45,23 @@ class Adversary(object):
         print('Map created.')
         print('Training Protagonist.')
         # run protagonist through env and train, the get reward
-        for n in range(self.n_training_epochs):
+        for _ in range(self.n_training_epochs):
             self.train_agent(env, self.protagonist, self.n_steps)
-        protagonist_reward = self.get_performance(env, self.protagonist)
-        protagonist_reward = np.mean(protagonist_reward)
+        protagonist_reward = [self.get_performance(env, self.protagonist) for _ in range(5)]
+        protagonist_reward = np.mean(protagonist_reward, dtype= np.float32)
         print('Training Antagonist.')
         # run antagonist through env and train
         for n in range(self.n_training_epochs):
             self.train_agent(env, self.antagonist, self.n_steps)
-        antagonist_reward = self.get_performance(env, self.antagonist)
+        antagonist_reward = [self.get_performance(env, self.antagonist) for _ in range(5)]
+        antagonist_reward = np.array(antagonist_reward, dtype = np.float32)
         antagonist_reward = np.max(antagonist_reward)
 
         # calculate regret
-        regret = antagonist_reward - protagonist_reward
+        regret = tf.subtract(antagonist_reward, protagonist_reward)
+        #print(antagonist_reward)
+        #print(protagonist_reward)
+        #print(regret.numpy())
 
         # use last regret as reward and put in last place of memory before calculating
         # self.memory.rewards[-1] = regret
@@ -66,17 +71,19 @@ class Adversary(object):
         # actor_loss, critic_loss = self.agent.learn(self.memory)
         print('Training Adversary')
         with tf.GradientTape() as tape1, tf.GradientTape() as tape2:
-            p = self.adversary.actor(self.memory.states, training=True)
-            v = self.adversary.critic(self.memory.states,training=True)
+            states = np.array(self.memory.states)
+
+            p = self.adversary.actor(states, training=True)
+            v = self.adversary.critic(states,training=True)
             v = tf.reshape(v, (len(v),))
             #c_loss = 0.5 * kls.mean_squared_error(regret,v)
             #a_loss, total_loss = self.calculate_loss(p, memory.actions, memory.advantage, self.old_probs, c_loss)
         
-        grads1 = tape1.gradient(regret, self.actor.trainable_variables)
-        grads2 = tape2.gradient(regret, self.critic.trainable_variables)        
-
-        self.optimizer_actor.apply_gradients(zip(grads1, self.actor.trainable_variables))
-        self.optimizer_critic.apply_gradients(zip(grads2, self.critic.trainable_variables))
+        grads1 = tape1.gradient(regret, self.adversary.actor.trainable_variables)
+        grads2 = tape2.gradient(regret, self.adversary.critic.trainable_variables)        
+        #print(regret.numpy())
+        self.adversary.optimizer_actor.apply_gradients(zip(grads1, self.adversary.actor.trainable_variables))
+        self.adversary.optimizer_critic.apply_gradients(zip(grads2, self.adversary.critic.trainable_variables))
         return regret#, total_loss
 
 
@@ -107,7 +114,6 @@ class Adversary(object):
             
             observation = env.draw_for_state()
             observation = env.one_hot(observation)
-            #print(position)
             action, probs = agent.get_action(observation)
             value = agent.critic(np.array([observation]), training = False).numpy()
 
@@ -131,9 +137,10 @@ class Adversary(object):
                 episode_dones = []
                 episode_rewards = []
 
-            print('Training Agent')
-            for epochs in range(10):
-                actor_loss, critic_loss = agent.learn(agent_memory)
+
+        for epochs in range(10):
+            actor_loss, critic_loss = agent.learn(agent_memory)
+        agent_memory.clear()
 
 
     def get_performance(self, env, agent):
@@ -142,13 +149,23 @@ class Adversary(object):
         env.reset()
         done = False
         n_steps = 0
+        rewards = []
+        b = Buffer()
         while not done:
             observation = env.draw_for_state()
             observation = env.one_hot(env.map)
             action, _ = agent.get_action(observation)
             n_steps += 1
             next_position, reward, done = env.step(action)
+            rewards.append(reward)
         # as a reward of 1 for every done would be difficult, 
         # we chose to take the steps relative to the size of the map as reward, if the agent was successful
+        print('rewards')
+        print(rewards)
+        d_rewards = b.calculate_disc_returns(rewards, 0.95)
+        print('discounted')
+        print(d_rewards)
+        b.clear()
+        d_rewards = np.sum(rewards)
         total_reward = done * (n_tiles-n_steps) / n_tiles
-        return total_reward
+        return d_rewards

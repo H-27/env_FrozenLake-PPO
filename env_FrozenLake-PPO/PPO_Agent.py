@@ -4,6 +4,7 @@ import tensorflow_probability as tfp
 import tensorflow.keras.losses as kls
 from Actor import Actor
 from Critic import Critic
+from Buffer import Buffer
 
 class PPO_Agent(object):
 
@@ -21,7 +22,7 @@ class PPO_Agent(object):
     def get_action(self, observation):
         
         observation = np.array([observation])
-        action_probs = self.actor(observation)
+        action_probs = self.actor(observation, training = False)
         action_probs = action_probs.numpy()
         probs = tfp.distributions.Categorical(probs=action_probs, dtype=tf.float32)
         action = int(probs.sample())
@@ -57,7 +58,6 @@ class PPO_Agent(object):
         states = np.array(memory.states, dtype=np.float32)    
 
         with tf.GradientTape() as tape1, tf.GradientTape() as tape2:
-            print(states.shape)
             p = self.actor((states), training=True)
             v = self.critic((states),training=True)
             v = tf.reshape(v, (len(v),))
