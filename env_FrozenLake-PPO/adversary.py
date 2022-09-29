@@ -1,6 +1,8 @@
+import numpy as np
 import Actor
 import Critic
-import PPO_Agent
+from PPO_Agent import PPO_Agent
+from Buffer import Buffer
 import FrozenLake
 class Adversary(object):
 

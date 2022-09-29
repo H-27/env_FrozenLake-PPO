@@ -27,6 +27,7 @@
     <Compile Include="Critic.py" />
     <Compile Include="env_FrozenLake_PPO.py" />
     <Compile Include="FrozenLake.py" />
+    <Compile Include="main.py" />
     <Compile Include="PPO.py" />
     <Compile Include="PPO_Agent.py" />
   </ItemGroup>

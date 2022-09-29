@@ -7,9 +7,10 @@ import sys
 import tensorflow as tf
 
 class PPO(object):
-    def __init__(self, action_space, gamma: float = 0.95):
+    def __init__(self, action_space, episode_length, gamma: float = 0.95):
 
-        self.agent = PPO_Agent(action_space)
+        self.episode_length = episode_length
+        self.agent = PPO_Agent(action_space, episode_length)
         self.buffer = Buffer()
         self.episode_reward = []
         self.total_average = []
@@ -22,7 +23,7 @@ class PPO(object):
         total_reward = []
         env.reset()
         done = False
-        observation = np.array([env.one_hot(env.map)])
+        observation = env.one_hot(env.map)
 
 
         while not done:
@@ -34,11 +35,7 @@ class PPO(object):
 
         return np.mean(total_reward)
 
-    def run(self, env, episode_number: int, episode_length: int):
-        
-        target = False
-        best_reward = 0
-        self.agent.old_probs = [[0.25, 0.25, 0.25, 0.25, 0.25] for i in range(episode_length)]
+    def run(self, env, episode_number: int):
         counter = 0
         env.reset
         observation = np.array([env.one_hot(env.map)])
@@ -46,18 +43,16 @@ class PPO(object):
         while counter <= episode_number:
 
             print('Starting Episode:' + str(counter+1))         
-            if target == True:
-                break
             done = False
             self.buffer.clear()
             env.reset()
-            position = env.reset
+            position = env.reset()
             episode_values = []
             episode_dones = []
             episode_rewards = []
             
             c = 0
-            while c <= episode_length:
+            while c <= self.episode_length:
                 
                 observation = env.draw_for_state()
                 observation = env.one_hot(observation)

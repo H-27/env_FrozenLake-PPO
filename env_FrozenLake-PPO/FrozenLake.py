@@ -32,36 +32,36 @@ class FrozenLake(object):
         if self.sparse:
             next_position = self.next_pos(action)
             if self.map[next_position] == b'x':
-                return (self.map, self.position), 0, False
+                return (self.draw_for_state(), self.position), 0, False
             if self.map[next_position] == b'H':
                 self.reset()
-                return (self.map, self.position), 0, True
+                return (self.draw_for_state(), self.position), 0, True
             if self.map[next_position] == b'G':
                 self.position = next_position
-                return (self.map, self.position), 1, True
+                return (self.draw_for_state(), self.position), 1, True
             if self.map[next_position] == b'S':
                 self.position = next_position
-                return (self.map, self.position), 0, False
+                return (self.draw_for_state(), self.position), 0, False
             if self.map[next_position] == b'-':
                 self.position = next_position
-                return (self.map, self.position), 0, False
+                return (self.draw_for_state(), self.position), 0, False
 
         if not self.sparse:
             next_position = self.next_pos(action)
             if self.map[next_position] == b'x':
-                return self.position, -2
+                return (self.draw_for_state(), self.position), -2, False
             if self.map[next_position] == b'H':
                 self.reset()
-                return next_position, -10
+                return (self.draw_for_state(), self.position), -10, True
             if self.map[next_position] == b'G':
                 self.position = next_position
-                return next_position, 100
+                return (self.draw_for_state(), self.position), 100, True
             if self.map[next_position] == b'S':
                 self.position = next_position
-                return self.next_pos(action), -1
+                return (self.draw_for_state(), self.position), -1, False
             if self.map[next_position] == b'-':
                 self.position = next_position
-                return self.next_pos(action), -1
+                return (self.draw_for_state(), self.position), -1, False
     
     def next_pos(self, action):
         # 0: LEFT 1: DOWN 2: RIGHT 3: UP
@@ -83,7 +83,7 @@ class FrozenLake(object):
             raise ValueError
     
     def one_hot(self, map):
-        one_hot_map = np.zeros((self.y,self.x, 4, 1))
+        one_hot_map = np.zeros((self.y,self.x, 5, 1))
         for i in range(1, len(map)):
             for j in range(1, len(map)):
                 if map[i][j] == b'G':
@@ -99,7 +99,7 @@ class FrozenLake(object):
         return one_hot_map
         
 
-    def visualise(self):
-      
-        self.map[self.position] = 'P'
-        print(self.one_hot(self.map))
+    def draw_for_state(self):
+        m = self.map.copy()
+        m[self.position] = 'P'
+        return m

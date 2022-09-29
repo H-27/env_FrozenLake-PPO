@@ -7,7 +7,7 @@ from Critic import Critic
 
 class PPO_Agent(object):
 
-    def __init__(self, number_actions: int, alpha: float = 0.0001, gamma: float = 0.95, epsilon: float = 0.25):
+    def __init__(self, number_actions: int, episode_length, alpha: float = 0.0001, gamma: float = 0.95, epsilon: float = 0.25):
         self.n_actions = number_actions
         self.optimizer_actor = tf.keras.optimizers.Adam(learning_rate=alpha)
         self.optimizer_critic = tf.keras.optimizers.Adam(learning_rate=alpha)
@@ -15,7 +15,8 @@ class PPO_Agent(object):
         self.epsilon = epsilon
         self.actor = Actor(number_actions, 16, 64, 32)
         self.critic = Critic( 16, 64, 32)
-        self.old_probs = []
+        l_inputs = [0.25 for n in range(number_actions)]
+        self.old_probs = [l_inputs for i in range(episode_length)]
 
     def get_action(self, observation):
         
@@ -56,6 +57,7 @@ class PPO_Agent(object):
         states = np.array(memory.states, dtype=np.float32)    
 
         with tf.GradientTape() as tape1, tf.GradientTape() as tape2:
+            print(states.shape)
             p = self.actor((states), training=True)
             v = self.critic((states),training=True)
             v = tf.reshape(v, (len(v),))
@@ -64,7 +66,6 @@ class PPO_Agent(object):
         
         grads1 = tape1.gradient(total_loss, self.actor.trainable_variables)
         grads2 = tape2.gradient(c_loss, self.critic.trainable_variables)
-        
 
         self.optimizer_actor.apply_gradients(zip(grads1, self.actor.trainable_variables))
         self.optimizer_critic.apply_gradients(zip(grads2, self.critic.trainable_variables))
