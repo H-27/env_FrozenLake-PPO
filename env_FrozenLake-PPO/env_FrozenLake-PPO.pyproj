@@ -22,9 +22,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Actor.py" />
+    <Compile Include="Actor_LSTM.py" />
     <Compile Include="adversary.py" />
     <Compile Include="Buffer.py" />
     <Compile Include="Critic.py" />
+    <Compile Include="Critic_LSTM.py" />
     <Compile Include="env_FrozenLake_PPO.py" />
     <Compile Include="FrozenLake.py" />
     <Compile Include="main.py" />

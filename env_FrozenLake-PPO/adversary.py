@@ -110,7 +110,11 @@ class Adversary(object):
         agent_memory = Buffer()
         
         c = 0
+        max_steps_episode = (env.x-2)*(env.y-2) * 3
         while c <= episode_length:
+            if max_steps_episode == 0:
+                print('Agent stuck')
+                break
             
             observation = env.draw_for_state()
             observation = env.one_hot(observation)
@@ -136,7 +140,7 @@ class Adversary(object):
                 episode_values = []
                 episode_dones = []
                 episode_rewards = []
-
+            max_steps_episode -= 1
 
         for epochs in range(10):
             actor_loss, critic_loss = agent.learn(agent_memory)

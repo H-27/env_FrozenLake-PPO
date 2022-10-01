@@ -31,7 +31,7 @@ class Buffer(object):
     
     # computes discounted returns for one episode
     def calculate_disc_returns(self, rewards, gamma):
-       # print(rewards)
+        # print(rewards)
         d_returns = []
         batch_size = len(rewards) 
         for t in reversed(range(batch_size)): 
@@ -41,6 +41,8 @@ class Buffer(object):
             d_returns.append(ret)
         d_returns.reverse()
         self.discounted_returns += d_returns
+        
+        return d_returns
         
         return d_returns
     # calculates advantages for one episode
