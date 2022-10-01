@@ -49,7 +49,7 @@ class FrozenLake(object):
         if not self.sparse:
             next_position = self.next_pos(action)
             if self.map[next_position] == b'x':
-                return (self.draw_for_state(), self.position), -2, False
+                return (self.draw_for_state(), self.position), 12, False
             if self.map[next_position] == b'H':
                 self.reset()
                 return (self.draw_for_state(), self.position), -10, True
