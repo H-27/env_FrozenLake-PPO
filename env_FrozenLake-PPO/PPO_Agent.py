@@ -16,10 +16,10 @@ class PPO_Agent(object):
         self.optimizer_critic = tf.keras.optimizers.Adam(learning_rate=alpha)
         self.gamma = gamma
         self.epsilon = epsilon
-        #self.actor = Actor(number_actions, 16, 64, 32)
-        #self.critic = Critic( 16, 64, 32)
-        self.actor = ActorLSTM(4)
-        self.critic = CriticLSTM()
+        self.actor = Actor(number_actions, 16, 32, 16)
+        self.critic = Critic( 16, 32, 16)
+        self.regret_actor = ActorLSTM(4).compile(optimizer="Adam")
+        self.regret_critic = CriticLSTM().compile(optimizer="Adam")
         l_inputs = [0.25 for n in range(number_actions)]
         self.old_probs = [l_inputs for i in range(episode_length)]
 
@@ -74,4 +74,10 @@ class PPO_Agent(object):
         self.optimizer_actor.apply_gradients(zip(grads1, self.actor.trainable_variables))
         self.optimizer_critic.apply_gradients(zip(grads2, self.critic.trainable_variables))
         return a_loss, c_loss#, total_loss
+
+    def learn_with_regret(self, memory, regret):
+        regret = tf.convert_to_tensor(regret)
+        states = np.array(memory.states)
+        self.regret_actor.fit(states, regret)
+        self.regret_critic.fit(states, regret)
         

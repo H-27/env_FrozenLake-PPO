@@ -85,23 +85,5 @@ class PPO(object):
             print('Training')
             for epochs in range(10):
                 actor_loss, critic_loss = self.agent.learn(self.buffer)
-        
-            ##rewards = [self.test_reward(env) for _ in range(10)]
-            #avg_reward = self.test_reward(env)#np.mean(rewards)
-            #best_reward = 0
-            #print('Episode: ' + str(counter))
-            #print(f"total test reward is {avg_reward}")
-            #if avg_reward > best_reward:
-            #    print('best reward=' + str(avg_reward))
-            #    algo.agent.actor.save('model_actor_{}_{}'.format(s, avg_reward), save_format="tf")
-            #    algo.agent.critic.save('model_critic_{}_{}'.format(s, avg_reward), save_format="tf")
-            #    best_reward = avg_reward
-            #if best_reward*100 == 75:
-            #    target = True
-            #env.reset_agent(0)
-            #state = env.agent_pos[0] #env.reset()
-            #observation = state[0]* env.nrow+ state[1]
-            #for i in range(4):#env.observation_space.n):
-            #    print('probs for state:' + str(i))
-            #    print(self.agent.actor.predict(np.array([one_hot_states[observation]])))
+
             counter+=1

@@ -59,32 +59,11 @@ class Adversary(object):
 
         # calculate regret
         regret = tf.subtract(antagonist_reward, protagonist_reward)
-        #print(antagonist_reward)
-        #print(protagonist_reward)
-        #print(regret.numpy())
-
-        # use last regret as reward and put in last place of memory before calculating
-        # self.memory.rewards[-1] = regret
-        # self.memory.calculate_advantage
-        # self.memory.calculate_advantage
-        # # and learn
-        # actor_loss, critic_loss = self.agent.learn(self.memory)
+        print(regret)
         print('Training Adversary')
-        with tf.GradientTape() as tape1, tf.GradientTape() as tape2:
-            states = np.array(self.memory.states)
 
-            p = self.adversary.actor(states, training=True)
-            v = self.adversary.critic(states,training=True)
-            v = tf.reshape(v, (len(v),))
-            #c_loss = 0.5 * kls.mean_squared_error(regret,v)
-            #a_loss, total_loss = self.calculate_loss(p, memory.actions, memory.advantage, self.old_probs, c_loss)
-        
-        grads1 = tape1.gradient(regret, self.adversary.actor.trainable_variables)
-        grads2 = tape2.gradient(regret, self.adversary.critic.trainable_variables)        
-        #print(regret.numpy())
-        self.adversary.optimizer_actor.apply_gradients(zip(grads1, self.adversary.actor.trainable_variables))
-        self.adversary.optimizer_critic.apply_gradients(zip(grads2, self.adversary.critic.trainable_variables))
-        return regret#, total_loss
+        self.adversary.learn_with_regret(self.memory, regret)
+        return regret.numpy()#, total_loss
 
 
     def choose_action(self, action):
