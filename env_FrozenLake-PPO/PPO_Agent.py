@@ -5,6 +5,8 @@ import tensorflow.keras.losses as kls
 from Actor import Actor
 from Critic import Critic
 from Buffer import Buffer
+from Actor_LSTM import ActorLSTM
+from Critic_LSTM import CriticLSTM
 
 class PPO_Agent(object):
 
@@ -14,8 +16,10 @@ class PPO_Agent(object):
         self.optimizer_critic = tf.keras.optimizers.Adam(learning_rate=alpha)
         self.gamma = gamma
         self.epsilon = epsilon
-        self.actor = Actor(number_actions, 16, 64, 32)
-        self.critic = Critic( 16, 64, 32)
+        #self.actor = Actor(number_actions, 16, 64, 32)
+        #self.critic = Critic( 16, 64, 32)
+        self.actor = ActorLSTM(4)
+        self.critic = CriticLSTM()
         l_inputs = [0.25 for n in range(number_actions)]
         self.old_probs = [l_inputs for i in range(episode_length)]
 
