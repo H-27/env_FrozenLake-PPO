@@ -78,6 +78,6 @@ class PPO_Agent(object):
     def learn_with_regret(self, memory, regret):
         regret = tf.convert_to_tensor(regret)
         states = np.array(memory.states)
-        self.regret_actor.fit(states, regret)
+            self.regret_actor.fit(states, regret)
         self.regret_critic.fit(states, regret)
         

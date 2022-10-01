@@ -79,6 +79,7 @@ class Adversary(object):
         if action == 4:
             return b'x'
     
+    # trains the given agent in the given environment for given amount of steps and trains him
     def train_agent(self, env, agent, episode_length: int):
         done = False
         env.reset()

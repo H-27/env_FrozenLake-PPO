@@ -11,7 +11,7 @@ class FrozenLake(object):
         self.map = self.reset_map()
         
         
-    
+    # creates an empty map
     def reset_map(self):
         map = np.chararray((self.y,self.x))
         map[:] = '-'
@@ -23,10 +23,11 @@ class FrozenLake(object):
         map[self.goal] = 'G'
         return map
         
-
+    # resets agent position
     def reset(self):
         self.position = self.start
     
+    # step function: takes one step in the env according to action in the position
     def step(self, action):
         
         if self.sparse:
@@ -63,6 +64,7 @@ class FrozenLake(object):
                 self.position = next_position
                 return (self.draw_for_state(), self.position), -1, False
     
+    # returns what would be the next position
     def next_pos(self, action):
         # 0: LEFT 1: DOWN 2: RIGHT 3: UP
         next_position = ()
@@ -82,6 +84,7 @@ class FrozenLake(object):
             print('No valid action')
             raise ValueError
     
+    # creates a one-hot encoded version of the map
     def one_hot(self, map):
         one_hot_map = np.zeros((self.y,self.x, 5, 1))
         for i in range(1, len(map)):
@@ -98,7 +101,7 @@ class FrozenLake(object):
                     one_hot_map[i][j] = np.array([[1], [0], [0], [0], [0]])
         return one_hot_map
         
-
+    # creates a version of the map with the agent position included
     def draw_for_state(self):
         m = self.map.copy()
         m[self.position] = 'P'
