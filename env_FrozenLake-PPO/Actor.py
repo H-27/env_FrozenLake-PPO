@@ -7,14 +7,15 @@ class Actor(tf.keras.Model):
 
         super(Actor, self).__init__()
         
-        self.conv_one = tf.keras.layers.Conv3D(filters = size_first_layer, kernel_size=1, activation=tf.nn.relu, padding= 'valid')
+        self.conv_one = tf.keras.layers.Conv3D(filters = size_first_layer, kernel_size=1, activation=tf.nn.leaky_relu, padding= 'valid')
         self.batch_one = tf.keras.layers.BatchNormalization()
-        self.activation_one = tf.keras.layers.Activation(tf.nn.relu)
+        self.activation_one = tf.keras.layers.Activation(tf.nn.leaky_relu)
         # second
-        self.conv_two = tf.keras.layers.Conv3D(filters = size_second_layer, kernel_size=3, activation=tf.nn.relu, padding= 'same')
+        self.conv_two = tf.keras.layers.Conv3D(filters = size_second_layer, kernel_size=3, activation=tf.nn.leaky_relu, padding= 'same')
         self.batch_two = tf.keras.layers.BatchNormalization()
-        self.activation_two = tf.keras.layers.Activation(tf.nn.relu)
-        self.dense = tf.keras.layers.Dense(size_third_layer, activation = tf.nn.relu)
+        self.activation_two = tf.keras.layers.Activation(tf.nn.leaky_relu)
+
+        self.dense = tf.keras.layers.Dense(size_third_layer, activation = tf.nn.leaky_relu)
         self.flat = tf.keras.layers.Flatten()
         self.outputlayer = tf.keras.layers.Dense(number_actions, activation = tf.nn.softmax)
         
