@@ -148,28 +148,17 @@ class Adversary(object):
 
 
     def get_performance(self, env, agent):
-        n_tiles = (env.x-2) * (env.y-2)
-        total_reward = []
+
         env.reset()
         done = False
         n_steps = 0
-        rewards = []
-        b = Buffer()
+        t = (env.x-2) * (env.y - 2) # max episode length
         while not done:
             observation = env.draw_for_state()
             observation = env.one_hot(env.map)
             action, _ = agent.get_action(observation)
             n_steps += 1
-            next_position, reward, done = env.step(action)
-            rewards.append(reward)
-        # as a reward of 1 for every done would be difficult, 
-        # we chose to take the steps relative to the size of the map as reward, if the agent was successful
-        print('rewards')
-        print(rewards)
-        d_rewards = b.calculate_disc_returns(rewards, 0.95)
-        print('discounted')
-        print(d_rewards)
-        b.clear()
-        d_rewards = np.sum(rewards)
-        total_reward = done * (n_tiles-n_steps) / n_tiles
-        return d_rewards
+            _, reward, done = env.step(action)
+        #return np.power(self.gamma, n_steps) * reward
+        return 1 - 0.9 * (n_steps/t)
+

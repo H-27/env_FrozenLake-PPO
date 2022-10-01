@@ -70,7 +70,6 @@ class PPO(object):
                 self.buffer.storeTransition(observation, action, reward, value[0][0], probs[0], done)
 
                 if done:
-                    print(c)
                     env.reset()
                     value = self.agent.critic(np.array([observation])).numpy()
                     episode_values.append(value)
